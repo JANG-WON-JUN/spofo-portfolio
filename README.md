@@ -8,7 +8,7 @@ SPOFO란 Stock Portfolio의 줄임말로 주식 포트폴리오를 제공하는 
 
 # Architecture Diagram
 
-![아키텍처 다이어그램](./images/포트폴리오 서버 아키텍처.png)
+![아키텍처 다이어그램](./images/architecture diagram.png)
 
 <br>
 
