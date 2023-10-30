@@ -6,13 +6,13 @@ SPOFO란 Stock Portfolio의 줄임말로 주식 포트폴리오를 제공하는 
 
 <br>
 
-# Server Architecture
+# Architecture Diagram
 
-## Architecture Diagram
+![아키텍처 다이어그램](./images/포트폴리오 서버 아키텍처.png)
 
 <br>
 
-## Hexagonal Architecture
+# Hexagonal Architecture
 
 본 서버는 헥사고날 아키텍처를 사용하여 도메인이 사용하는 외부 의존성과의 결합도를 줄이고, 빠르게 실행되는 테스트 코드를 작성하였습니다.
 
