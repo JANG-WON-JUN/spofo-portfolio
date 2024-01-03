@@ -3,10 +3,12 @@ package spofo.mock;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import spofo.global.domain.exception.PortfolioNotFound;
 import spofo.holdingstock.domain.HoldingStock;
 import spofo.portfolio.controller.port.PortfolioService;
+import spofo.portfolio.controller.request.PortfolioSearchCondition;
 import spofo.portfolio.domain.Portfolio;
 import spofo.portfolio.domain.PortfolioCreate;
 import spofo.portfolio.domain.PortfolioStatistic;
@@ -23,15 +25,21 @@ public class FakePortfolioService implements PortfolioService {
     private final StockServerService stockServerService;
 
     @Override
-    public TotalPortfoliosStatistic getPortfoliosStatistic(Long memberId) {
+    public TotalPortfoliosStatistic getPortfoliosStatistic(Long memberId,
+            PortfolioSearchCondition condition) {
         List<Portfolio> portfolios = portfolioRepository.findByMemberIdWithTradeLogs(memberId);
-        List<PortfolioStatistic> portfolioStatistics = getPortfolioStatistics(portfolios);
+        List<PortfolioStatistic> portfolioStatistics =
+                getPortfolioStatistics(filter(portfolios, condition));
+
         return TotalPortfoliosStatistic.of(portfolioStatistics);
     }
 
     @Override
-    public List<PortfolioStatistic> getPortfolios(Long memberId) {
-        List<Portfolio> portfolios = portfolioRepository.findByMemberIdWithTradeLogs(memberId);
+    public List<PortfolioStatistic> getPortfolios(Long memberId,
+            PortfolioSearchCondition condition) {
+        List<Portfolio> portfolios =
+                filter(portfolioRepository.findByMemberIdWithTradeLogs(memberId), condition);
+
         return getPortfolioStatistics(portfolios);
     }
 
@@ -86,6 +94,26 @@ public class FakePortfolioService implements PortfolioService {
                 .flatMap(portfolio -> portfolio.getHoldingStocks().stream()
                         .map(HoldingStock::getStockCode))
                 .distinct()
+                .toList();
+    }
+
+    private Predicate<Portfolio> searchCondition(PortfolioSearchCondition condition) {
+        if (condition == null) {
+            return x -> true;
+        }
+
+        Predicate<Portfolio> result = x -> true;
+
+        if (condition.getType() != null) {
+            result = result.and(portfolio -> portfolio.getType().equals(condition.getType()));
+        }
+        return result;
+    }
+
+    private List<Portfolio> filter(List<Portfolio> portfolios,
+            PortfolioSearchCondition condition) {
+        return portfolios.stream()
+                .filter(searchCondition(condition))
                 .toList();
     }
 }
